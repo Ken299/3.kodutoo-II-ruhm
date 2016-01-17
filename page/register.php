@@ -2,7 +2,7 @@
 	 //ühenduse loomiseks kasuta
 	require_once("../../config.php");
 	$database = "if15_kenaon";
-	$mysqli = new mysqli($servername, $username, $password, $database);
+	$mysqli = new mysqli($servername, $server_username, $server_password, $database);
 	
 	// funktsioon, mis eemaldab kõikvõimaliku üleliigse tekstist
 	function cleanInput($data) { 
@@ -65,30 +65,54 @@
 			}
 			if(	$email_error == "" && $password_error == "" && $password_error2 == "" && $password_error3 == "" && $password_error_length == "")
 			{
-				echo "Võib kasutajat luua! Kasutajanimi on ".$email." ja parool on ".$password;
+				if(isset($_POST['access']))
+				{
+					echo "Võib kasutajat luua! Kasutajanimi on ".$email." ja parool on ".$password;
+					
+					$fname = cleanInput($_POST["fname"]);
+					$lname = cleanInput($_POST["lname"]);
+					$password_hash = hash("sha512", $password);
+					echo "<br>";
+					echo $password_hash;
+					
+					$stmt = $mysqli->prepare("INSERT INTO user_accounts (fname, lname, email, password, access) VALUES (?, ?, ?, ?, 1)");
+					
+					//alumine funktsioon näitab mis error oleks kui on midagi
+					echo $mysqli->error;
+					echo $stmt->error;
+					//asendame ? märgid muutujate väärtustega
+					//ss - s tähendab string iga muutuja kohta
+					$stmt->bind_param("ssss", $fname, $lname, $email, $password_hash);
+					$stmt->execute();
+					$stmt->close();
+					header("Location: login.php");
+				}
+				else
+				{
+					echo "Võib kasutajat luua! Kasutajanimi on ".$email." ja parool on ".$password;
 				
-				$fname = cleanInput($_POST["fname"]);
-				$lname = cleanInput($_POST["lname"]);
-				$age = cleanInput($_POST["age"]);
-				$password_hash = hash("sha512", $password);
-				echo "<br>";
-				echo $password_hash;
-				
-				$stmt = $mysqli->prepare("INSERT INTO kontod32 (fname, lname, age, email, password) VALUES (?, ?, ?, ?, ?)");
-				
-				//alumine funktsioon näitab mis error oleks kui on midagi
-				echo $mysqli->error;
-				echo $stmt->error;
-				//asendame ? märgid muutujate väärtustega
-				//ss - s tähendab string iga muutuja kohta
-				$stmt->bind_param("ssiss", $fname, $lname, $age, $email, $password_hash);
-				$stmt->execute();
-				$stmt->close();
-				header("Location: login.php");
+					$fname = cleanInput($_POST["fname"]);
+					$lname = cleanInput($_POST["lname"]);
+					$password_hash = hash("sha512", $password);
+					echo "<br>";
+					echo $password_hash;
+					
+					$stmt = $mysqli->prepare("INSERT INTO user_accounts (fname, lname, email, password) VALUES (?, ?, ?, ?)");
+					
+					//alumine funktsioon näitab mis error oleks kui on midagi
+					echo $mysqli->error;
+					echo $stmt->error;
+					//asendame ? märgid muutujate väärtustega
+					//ss - s tähendab string iga muutuja kohta
+					$stmt->bind_param("ssss", $fname, $lname, $email, $password_hash);
+					$stmt->execute();
+					$stmt->close();
+					header("Location: login.php");
+				}
 			}
-		 }
-	
+		}
 	}
+	
 	//Paneme ühenduse kinni
 	$mysqli->close();
 ?>
@@ -101,11 +125,10 @@
 		<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post" >
 		<input name="fname" type="text" placeholder="Eesnimi"> <br><br>
 		<input name="lname" type="text" placeholder="Perekonnanimi"> <br><br>
-		Vanus (1-99):
-		<input type="number" name="age" min="1" max="99"> <br><br>
 		<input name="email" type="email" placeholder="E-post"> <?php echo $email_error; ?> <br><br>
 		<input name="password" type="password" placeholder="Parool" > <?php echo $password_error; echo $password_error_length; ?> <br><br>
 		<input name="password2" type="password" placeholder="Parool" > <?php echo $password_error2; echo $password_error3;?> <br><br>
+		<input name="access" type="checkbox" value="Õpetaja">Olen õpetaja<br><br>
 		<input name="register" type="submit" value="Registreeri"> <br><br>
 		</form>
 		

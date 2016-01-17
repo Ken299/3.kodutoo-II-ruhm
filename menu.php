@@ -2,13 +2,21 @@
 	require_once("functions.php");
 ?>
 <h3>Menüü</h3>
+<?php echo $_SESSION["logged_in_user_id"]; ?>
 <?php
 	if(isset($_SESSION["logged_in_user_id"]))
 	{?>
 		<input type=button onClick="location.href='?logout=1'" value='Logi välja'>
 		<?php
 	}
+	if(isset($_GET["logout"])){
+		//aadressireal on olemas muutuja logout
 		
+		//kustutame kõik session muutujad ja peatame sessiooni
+		session_destroy();
+		
+		header("Location: login.php");
+	}	
 ?>
 
 <ul>
@@ -52,17 +60,16 @@
 		}
 	}	
 	?>
-	
 	<?php 
 	if(isset($_SESSION["logged_in_user_id"]))
 	{
-		if ($file_name == "ylesanded.php"){ 
+		if ($file_name == "lectures.php"){ 
 		
-			echo "<li>Ülesanded</li>";
+			echo "<li>Ained</li>";
 		
 		}else{
 			
-			echo '<li><a href="ylesanded.php">Ülesanded</a></li>';
+			echo '<li><a href="lectures.php">Ained</a></li>';
 		}
 	}
 	else
@@ -73,19 +80,36 @@
 	<?php 
 	if(isset($_SESSION["logged_in_user_id"]))
 	{
-		if ($file_name == "data.php"){ 
+		if ($file_name == "ylesanded.php"){ 
 		
-			echo "<li>Numbrimärgid</li>";
+			echo "<li>Ülesanded</li>";
 		
 		}else{
 			
-			echo '<li><a href="data.php">Numbrimärgid</a></li>';
+			echo '<li><a href="tasks.php">Ülesanded</a></li>';
 		}
 	}
 	else
 	{
 		echo "";
-	}	
+	}
+	?>
+	<?php 
+	if(isset($_SESSION["logged_in_user_id"]))
+	{
+		if ($file_name == "select.php"){ 
+		
+			echo "<li>Vali ained</li>";
+		
+		}else{
+			
+			echo '<li><a href="select.php">Vali ained</a></li>';
+		}
+	}
+	else
+	{
+		echo "";
+	}
 	?>
 	
 
